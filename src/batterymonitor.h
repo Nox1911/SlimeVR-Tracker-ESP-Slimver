@@ -84,6 +84,14 @@ private:
 #if BATTERY_MONITOR == BAT_INTERNAL || BATTERY_MONITOR == BAT_INTERNAL_MCP3021
     uint16_t voltage_3_3 = 3000;
 #endif
+#if BATTERY_MONITOR == BAT_BQ25890
+    #define BQ25890_ADDR 0x6A
+    #define BQ25890_REG0E 0x0E
+    #define BQ25890_BATV_MASK 0x7F 
+    #define BQ25890_BATV_SHIFT 0   
+    #define BQ25890_TSHUT_MASK 0x80 
+    #define BQ25890_TSHUT_SHIFT 7
+#endif
     float voltage = -1;
     float level = -1;
 
