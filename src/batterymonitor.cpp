@@ -95,23 +95,30 @@ void BatteryMonitor::Loop()
                         voltage = (voltage > 0) ? min(voltage, v) : v;
                     }
                 }
+        	#endif
+           	#if BATTERY_MONITOR == BAT_BQ25890
+                uint8_t Rreg = 0;
+                uint8_t reg = 0;
+                float vbat = 0;
+
+                Wire.begin();
+                Wire.beginTransmission(BQ25890_ADDR);
+                Wire.write(BQ25890_REG0E);
+                Wire.endTransmission();
+
+                Wire.requestFrom(BQ25890_ADDR, (uint8_t)1);
+                if (Wire.available()) {
+                    Rreg = Wire.read();
+                    Serial.print("REG0E: "); Serial.println(Rreg, HEX);
+    
+                reg = (Rreg & BQ25890_BATV_MASK) >> BQ25890_BATV_SHIFT;
+
+                voltage = (float)reg * 0.02 + 2.304;
             #endif
             if (voltage > 0) //valid measurement
             {
-                // Estimate battery level, 3.2V is 0%, 4.17V is 100% (1.0)
-                if (voltage > 3.975f)
-                    level = (voltage - 2.920f) * 0.8f;
-                else if (voltage > 3.678f)
-                    level = (voltage - 3.300f) * 1.25f;
-                else if (voltage > 3.489f)
-                    level = (voltage - 3.400f) * 1.7f;
-                else if (voltage > 3.360f)
-                    level = (voltage - 3.300f) * 0.8f;
-                else
-                    level = (voltage - 3.200f) * 0.3f;
-
-                level = (level - 0.05f) / 0.95f; // Cut off the last 5% (3.36V)
-
+                // Estimate battery level
+                level = 1 - (exp((4.2 - voltage) * 5.5) - 1) / (exp((4.2 - 3.3) * 5.5) - 1) ;
                 if (level > 1)
                     level = 1;
                 else if (level < 0)
