@@ -107,7 +107,7 @@ void BatteryMonitor::Loop()
                 Wire.endTransmission();
 
                 Wire.requestFrom(BQ25890_ADDR, (uint8_t)1);
-                if (Wire.available()) {
+                if (Wire.available()) 
                     Rreg = Wire.read();
                     Serial.print("REG0E: "); Serial.println(Rreg, HEX);
     
